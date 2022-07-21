@@ -8,8 +8,8 @@ use App\Models\Slot;
 use DataTables;
 use Validator;
 use App\Models\Positions;
-use App\Models\Requirements;
 use App\Models\GPositions;
+use App\Models\Requirements;
 use App\Models\GRequirements;
 class ClientController extends Controller
 {
@@ -66,7 +66,7 @@ class ClientController extends Controller
     }
     public function create()
     {
-    	$positions=GPositions::where('is_active','yes')->get();
+		$positions=GPositions::where('is_active','yes')->get();
     	return view('admin.client.create',[
 			'positions'=>$positions
 		]);
@@ -83,7 +83,7 @@ class ClientController extends Controller
             'country'=>'required',
             'city'=>'required',
             'zip'=>'required',
-            'commission_percentage'=>'required'
+			'commission_percentage'=>'required'
         ]);
         if($validator->fails())
         {
@@ -121,7 +121,7 @@ class ClientController extends Controller
     		$model->updated_by=\Auth::user()->id;
     		$model->created_at=date('Y-m-d H:i:s');
     		$model->updated_at=date('Y-m-d H:i:s');
-    		$model->commission_percentage=$request->commission_percentage;
+			$model->commission_percentage=$request->commission_percentage;
     		$path=public_path().'/uploads/client'; 
     		if($model->save()){
 				if($request->has('positions') && count($request->positions) != 0)
@@ -158,7 +158,6 @@ class ClientController extends Controller
 					}
 				}
 			}
-         
         }
 		echo "Created Successfully";
     }
@@ -180,8 +179,10 @@ class ClientController extends Controller
         ->leftJoin('users','users.id','client.user_id')
         ->where('client.id',$id)
         ->first();
+		$positions=GPositions::where('is_active','yes')->get();
         return view('admin.client.update',[
-            'data' => $data
+            'data' => $data,
+			'positions'=>$positions
         ]);
     }
 
@@ -197,7 +198,7 @@ class ClientController extends Controller
             'country'=>'required',
             'city'=>'required',
             'zip'=>'required',
-            'commission_percentage'=>'required'
+			'commission_percentage'=>'required'
         ]);
         if($validator->fails())
         {
@@ -230,7 +231,7 @@ class ClientController extends Controller
             $model->lng=$request->lng;
             $model->updated_by=\Auth::user()->id;
             $model->updated_at=date('Y-m-d H:i:s');
-            $model->commission_percentage=$request->commission_percentage;
+			$model->commission_percentage=$request->commission_percentage;
             $model->save();
         }
 
