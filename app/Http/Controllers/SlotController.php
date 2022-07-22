@@ -206,8 +206,6 @@ class SlotController extends Controller
             //'is_booked'=>'required',
             'position'=>'required',
 			'no_of_shifts'=>'required',
-			'duration'=>'required'
-
             ]);
               
         }else{
@@ -222,20 +220,7 @@ class SlotController extends Controller
             'position'=>'required',
 			'no_of_shifts'=>'required',
 			'duration'=>'required'
-
             ]);
-        }
-        
-        
-        
-        
-        $checkurl = "http://api1.webpurify.com/services/rest/?method=webpurify.live.check&api_key=286b4f9a1748a57fbcaf0ed65b8c1fdd&text=".urlencode($request->template);
-
-        $response = simplexml_load_file($checkurl,'SimpleXMLElement', LIBXML_NOCDATA);
-        
-        if($response->found == 1){
-            //return back()->withErrors(["template" => "Don't Use bad words here..! Please change it."])->withInput();
-            echo "Don't Use bad words here..! Please change it."; exit;
         }
     	
     	$model = new Slot();
@@ -259,10 +244,11 @@ class SlotController extends Controller
 		$model->template=$request->template;
 		$model->price=$request->price;
 		$model->price_type=$request->price_type;
+		$model->duration=$request->duration;
         $model->no_of_shifts=$request->no_of_shifts;
-        $model->commission_percentage=Client::getCommission($model->client_id);
+		$model->no_of_shifts=$request->no_of_shifts;
+		$model->commission_percentage=Client::getCommission($model->client_id);
 		$model->commission_amount=($model->price*$model->commission_percentage*$model->duration*$model->no_of_shifts)/100;
-        $model->is_approve='yes';
 		if($model->save())
 		{
 			if($request->no_of_shifts > 0)
@@ -281,12 +267,6 @@ class SlotController extends Controller
 				}
 			}
 		}
-		
-		SendMail::sendMail('',[
-		    'template'=>'new_shift',
-		    'shift'=>$model,
-		]);
-        Fcm::send($model);
 
 		echo "Created Successfully";
     }
@@ -346,16 +326,6 @@ class SlotController extends Controller
 
             ]);
         }
-        
-        $checkurl = "http://api1.webpurify.com/services/rest/?method=webpurify.live.check&api_key=286b4f9a1748a57fbcaf0ed65b8c1fdd&text=".urlencode($request->template);
-
-        $response = simplexml_load_file($checkurl,'SimpleXMLElement', LIBXML_NOCDATA);
-        
-        if($response->found == 1){
-            //return back()->withErrors(["template" => "Don't Use bad words here..! Please change it."])->withInput();
-            echo "Don't Use bad words here..! Please change it."; exit;
-        }
-        
         $model = Slot::find($request->row_id);
         if(\Auth::user()->user_type == 'admin')
         {
@@ -375,12 +345,12 @@ class SlotController extends Controller
 		$model->template=$request->template;
 		$model->price=$request->price;
 		$model->price_type=$request->price_type;
-		
+		$model->duration=$request->duration;
 		if(Shift::where('slot_id',$model->id)->where('client_id',$model->client_id)->where('is_booked','yes')->count() < $request->no_of_shifts)
 		{
 			 $model->no_of_shifts=$request->no_of_shifts;
 		}
-        $model->commission_percentage=Client::getCommission($model->client_id);
+		$model->commission_percentage=Client::getCommission($model->client_id);
 		$model->commission_amount=($model->price*$model->commission_percentage*$model->duration*$model->no_of_shifts)/100;
         if($model->save())
 		{
@@ -527,7 +497,7 @@ class SlotController extends Controller
     }
     public function approveSlot(Request $request)
     {
-        $data;
+		$data;
 		if($request->status == 'yes')
 		{
 			$data=Slot::find($request->slot_id);
@@ -545,6 +515,7 @@ class SlotController extends Controller
 				echo 0;
 			}
 		}
+        
 	    $user=User::find($data->client_id);
 		SendMail::sendMail($user->email,[
 		'template'=>'shift_status',

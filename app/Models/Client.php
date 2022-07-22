@@ -14,7 +14,7 @@ Class Client extends Model{
 
      protected $dates = ['deleted_at'];
      protected $guarded = [];
-      public static function getCommission($id)
+	 public static function getCommission($id)
 	 {
 		$data=Self::where('user_id',$id)->first();
 		if($data)

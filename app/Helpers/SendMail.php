@@ -70,6 +70,7 @@ class SendMail
 							->subject($data['subject']);
 							});
 						}
+						
 					}
 
 			}
